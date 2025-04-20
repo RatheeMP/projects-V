@@ -16,14 +16,14 @@ import { Sidebar } from "@/components/sidebar"
 import { Bell, Home, Menu, MessageSquare, Plus, Search, User } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { signOut } from "@/app/actions/auth-actions"
+import { signOut } from "next-auth/react"
 import { useSession } from "next-auth/react"
 
 interface AppHeaderProps {
   user?: {
-    id: string
-    name: string
-    email: string
+    id?: string
+    name?: string
+    email?: string
     username?: string
     image?: string
   } | null
@@ -125,13 +125,7 @@ export function AppHeader({ user }: AppHeaderProps) {
                 <Link href="/settings">Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={async () => {
-                  await signOut()
-                }}
-              >
-                Sign out
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>Sign out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

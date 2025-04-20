@@ -1,22 +1,10 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import EmailProvider from "next-auth/providers/email"
 import type { NextAuthOptions } from "next-auth"
 
 // Create a simple credentials provider that accepts any of our test emails
 export const authOptions: NextAuthOptions = {
   providers: [
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
-      from: process.env.EMAIL_FROM,
-    }),
     CredentialsProvider({
       name: "Email",
       credentials: {
@@ -48,7 +36,6 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/signin",
-    verifyRequest: "/verify-request",
     error: "/auth-error",
   },
   session: {
@@ -69,12 +56,8 @@ export const authOptions: NextAuthOptions = {
       return token
     },
   },
-  adapter: NeonAdapter(),
 }
 
 const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
-
-// Import the adapter at the top of the file
-import { NeonAdapter } from "@/lib/auth/neon-adapter"

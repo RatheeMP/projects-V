@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { getToken } from "next-auth/jwt"
 
 export async function middleware(request: NextRequest) {
-  // Check for either authentication method
-  const userEmail = request.cookies.get("user-email")?.value
-  const nextAuthSession =
-    request.cookies.get("next-auth.session-token")?.value ||
-    request.cookies.get("__Secure-next-auth.session-token")?.value
+  // Get the NextAuth session token
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  })
 
-  const isAuthenticated = !!userEmail || !!nextAuthSession
+  const isAuthenticated = !!token
 
   // Define protected routes that require authentication
   const isProtectedRoute =
