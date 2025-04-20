@@ -3,12 +3,14 @@
 import { sql, generateId } from "@/lib/db"
 import { analyzeContent, COMMUNITY_GUIDELINES } from "@/lib/content-safety"
 import { revalidatePath } from "next/cache"
-import { getCurrentUser } from "@/lib/auth"
+import { getServerSession } from "next-auth"
+import { authOptions } from "../api/auth/[...nextauth]/route"
 
 export async function createComment(formData: FormData) {
-  const user = await getCurrentUser()
+  // Get user from NextAuth session
+  const session = await getServerSession(authOptions)
 
-  if (!user) {
+  if (!session?.user) {
     return { success: false, message: "You must be signed in to comment" }
   }
 
@@ -66,6 +68,28 @@ export async function createComment(formData: FormData) {
       }
     }
 
+    // Get user ID from database based on email
+    const users = await sql`SELECT id FROM "User" WHERE email = ${session.user.email}`
+
+    if (users.length === 0) {
+      // Create user if they don't exist
+      await sql`
+        INSERT INTO "User" (id, name, email, username, "createdAt", "updatedAt")
+        VALUES (${session.user.id || generateId()}, ${session.user.name}, ${session.user.email}, ${session.user.username || session.user.email?.split("@")[0]}, NOW(), NOW())
+        ON CONFLICT (email) DO NOTHING
+      `
+
+      // Get the user ID again
+      const newUsers = await sql`SELECT id FROM "User" WHERE email = ${session.user.email}`
+      if (newUsers.length === 0) {
+        return { success: false, message: "Failed to create user" }
+      }
+
+      var userId = newUsers[0].id
+    } else {
+      var userId = users[0].id
+    }
+
     const commentId = generateId()
 
     // Check if the Comment table has the required columns
@@ -88,7 +112,7 @@ export async function createComment(formData: FormData) {
           ${commentId}, 
           ${content}, 
           ${postId}, 
-          ${user.id}, 
+          ${userId}, 
           NOW(), 
           NOW(), 
           ${safetyResult.category === "neutral"}, 
@@ -99,7 +123,7 @@ export async function createComment(formData: FormData) {
       // If the columns don't exist, use the basic schema
       await sql`
         INSERT INTO "Comment" (id, content, "postId", "userId", "createdAt", "updatedAt")
-        VALUES (${commentId}, ${content}, ${postId}, ${user.id}, NOW(), NOW())
+        VALUES (${commentId}, ${content}, ${postId}, ${userId}, NOW(), NOW())
       `
     }
 

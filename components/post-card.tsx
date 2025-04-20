@@ -36,7 +36,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const { toast } = useToast()
   const [liked, setLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(post._count?.likes || 0)
@@ -48,6 +48,9 @@ export function PostCard({ post }: PostCardProps) {
     explanation?: string
     suggestedRevision?: string
   } | null>(null)
+
+  // Check if user is authenticated
+  const isAuthenticated = status === "authenticated"
 
   const handleLike = () => {
     if (liked) {
@@ -166,7 +169,7 @@ export function PostCard({ post }: PostCardProps) {
         {showComments && (
           <div className="w-full space-y-4">
             <CommentList postId={post.id} comments={post.comments} />
-            {session ? (
+            {isAuthenticated ? (
               <>
                 {moderationError && (
                   <Alert variant="destructive" className="mb-4">

@@ -22,7 +22,9 @@ export async function middleware(request: NextRequest) {
 
   // Only redirect unauthenticated users away from protected pages
   if (!isAuthenticated && isProtectedRoute) {
-    return NextResponse.redirect(new URL("/signin", request.url))
+    const signInUrl = new URL("/signin", request.url)
+    signInUrl.searchParams.set("callbackUrl", request.nextUrl.pathname)
+    return NextResponse.redirect(signInUrl)
   }
 
   return NextResponse.next()

@@ -40,6 +40,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async session({ session, token }) {
@@ -56,6 +57,10 @@ export const authOptions: NextAuthOptions = {
       return token
     },
   },
+  // Explicitly set the trusted host for production
+  trustHost: true,
+  // Add debug mode for development
+  debug: process.env.NODE_ENV === "development",
 }
 
 const handler = NextAuth(authOptions)
