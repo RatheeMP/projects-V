@@ -21,6 +21,7 @@ const formSchema = z.object({
 export function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  // Default to "/feed" if callbackUrl is not provided or invalid
   const callbackUrl = searchParams?.get("callbackUrl") || "/feed"
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
@@ -36,15 +37,11 @@ export function SignInForm() {
     setIsLoading(true)
 
     try {
-      console.log("Attempting to sign in with:", values.email)
-
       const result = await signIn("credentials", {
         email: values.email,
         redirect: false,
         callbackUrl,
       })
-
-      console.log("Sign in result:", result)
 
       if (result?.error) {
         toast({
@@ -57,7 +54,8 @@ export function SignInForm() {
           title: "Success",
           description: "You have been signed in.",
         })
-        router.push(callbackUrl)
+        // Use a safe path for redirection
+        router.push(callbackUrl.startsWith("/") ? callbackUrl : "/feed")
         router.refresh()
       }
     } catch (error) {
