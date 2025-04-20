@@ -6,6 +6,7 @@ import type { NextAuthOptions } from "next-auth"
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
+      id: "credentials",
       name: "Email",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -57,12 +58,9 @@ export const authOptions: NextAuthOptions = {
       return token
     },
   },
-  // Explicitly set the trusted host for production
-  trustHost: true,
-  // Add debug mode for development
   debug: process.env.NODE_ENV === "development",
+  secret: process.env.NEXTAUTH_SECRET,
 }
 
 const handler = NextAuth(authOptions)
-
 export { handler as GET, handler as POST }

@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 
 const formSchema = z.object({
@@ -18,11 +18,12 @@ const formSchema = z.object({
   }),
 })
 
-export function SignInForm() {
+interface SignInFormProps {
+  callbackUrl: string
+}
+
+export function SignInForm({ callbackUrl }: SignInFormProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  // Default to "/feed" if callbackUrl is not provided or invalid
-  const callbackUrl = searchParams?.get("callbackUrl") || "/feed"
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
@@ -40,7 +41,6 @@ export function SignInForm() {
       const result = await signIn("credentials", {
         email: values.email,
         redirect: false,
-        callbackUrl,
       })
 
       if (result?.error) {
@@ -54,8 +54,7 @@ export function SignInForm() {
           title: "Success",
           description: "You have been signed in.",
         })
-        // Use a safe path for redirection
-        router.push(callbackUrl.startsWith("/") ? callbackUrl : "/feed")
+        router.push(callbackUrl)
         router.refresh()
       }
     } catch (error) {

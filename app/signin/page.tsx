@@ -1,4 +1,5 @@
-import { SignInForm } from "@/components/sign-in-form"
+import { Suspense } from "react"
+import { SignInFormWrapper } from "@/components/sign-in-form-wrapper"
 
 export default function SignInPage() {
   return (
@@ -8,7 +9,9 @@ export default function SignInPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Sign in to your account</h1>
           <p className="text-sm text-muted-foreground">Enter your email to sign in to your account</p>
         </div>
-        <SignInForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <SignInFormWrapper />
+        </Suspense>
         <p className="px-8 text-center text-sm text-muted-foreground">
           By clicking continue, you agree to our{" "}
           <a href="/terms" className="underline underline-offset-4 hover:text-primary">

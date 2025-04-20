@@ -22,14 +22,11 @@ export async function middleware(request: NextRequest) {
 
   // Only redirect unauthenticated users away from protected pages
   if (!isAuthenticated && isProtectedRoute) {
-    // Create URL safely
-    const baseUrl = request.nextUrl.origin
-    const signInUrl = new URL("/signin", baseUrl)
+    // Create the sign-in URL
+    const signInUrl = new URL("/signin", request.url)
 
-    // Add callback URL if it's a valid path
-    if (request.nextUrl.pathname) {
-      signInUrl.searchParams.set("callbackUrl", request.nextUrl.pathname)
-    }
+    // Add the current path as the callback URL
+    signInUrl.searchParams.set("callbackUrl", request.nextUrl.pathname)
 
     return NextResponse.redirect(signInUrl)
   }

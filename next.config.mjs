@@ -1,16 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Ensure we handle URL construction properly during build
-  output: 'standalone',
-  // Disable image optimization during build to avoid URL issues
+  // Disable strict mode for production to avoid double renders
+  reactStrictMode: false,
+  // Configure image domains
   images: {
-    unoptimized: true,
+    domains: ['v0.blob.com', 'localhost'],
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Disable type checking during build
   typescript: {
     ignoreBuildErrors: true,
+  },
+  // Disable ESLint during build
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 
